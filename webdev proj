@@ -1,0 +1,188 @@
+<?php
+	// init connection
+	$objConnection = mysqli_connect("localhost","root","","ceitsc_db");
+
+	// check connection
+	if (mysqli_connect_errno()) {
+
+		// print error
+		die( "Failed to connect to MySQL: " . mysqli_connect_error());
+	}
+
+?>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
+<link href="default.css" rel="stylesheet" type="text/css" media="all" />
+<link href="fonts.css" rel="stylesheet" type="text/css" media="all" />
+
+<!--[if IE 6]><link href="default_ie6.css" rel="stylesheet" type="text/css" /><![endif]-->
+
+</head>
+<body>
+<div id="page" class="container">
+	<div id="header">
+		<div id="logo">
+			<img src="pictures/bsitsmall.jpg" width="280px" height="230px" alt="bsitsmall" />
+						<span><a href="index.php">BS IT</a></span>
+		</div>
+		<div id="menu">
+			<ul>
+				<li class="current_page_item"><a href="adminpage.php" accesskey="1" title="">Homepage</a></li>
+				<li><a href="adminannounce.php" accesskey="2" title="">Announcement</a></li>
+				<li><a href="adminscfee.php" accesskey="3" title="">SC Fee</a></li>
+				<li><a href="login.php" accesskey="5" title="">Log out</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="main">
+		<div id="banner">
+			<img src="pictures/bsit.jpeg" alt="" class="image-full" />
+		</div>
+				<div id="welcome">
+			<div class="title">
+				<h3>List of Registered</h3>
+				<div class="col-md-7 col-sm-7 col-md-offset-2 col-sm-offset-2">
+				
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="alert <?php echo $_GET['class'] ?>" >
+							<?php 
+								if (isset($_GET['message'])) {
+									echo $_GET['message'];
+								}
+							?>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+					<form method="post" action="adminpage.php">
+							
+				
+							<div class="input-group">
+								<label>Student Number </label>
+								<input type="text" placeholder="Search Student Number" name="student_no" required pattern="^/w{,9}"
+								oninvalid="this.setCustomValidity('Enter 9 digit Student Number')"
+    							oninput="setCustomValidity('')" >
+								<button class=btn type="submit" name="search" value="search">Search</button><br><br><br>
+								</div>
+						<div class="input-group">
+							
+							<label>Username </label><input type="text" name="username" ><br>
+							<label>Password </label><input type="text" name="password" ><br>
+							<label>Course </label><input type="text" name="org_sname" value="BS IT" ><br>
+
+							<div class="input-group">
+							
+							<label>Access Level</label>
+							<select name="access_lvl" class="form-control" required="">
+				
+										<option value="3" >Student</option>
+										<option value="2" >Officer</option>
+										<option value="1" >Admin</option>
+							</select>
+						</div>
+											
+						<button class="btn" type="submit" name="delete" value="Delete" >Delete</button>	
+						
+						<button class="btn" type="submit" name="edit" value="edit" >Edit</button>	
+ 
+						</form>
+
+					</div>
+					<p>Access Level</p>
+					<p>Student = 3 /
+					Officer = 2 / 
+					Admin = 1 
+					<p>*NOTE: Change Accordingly</p>
+
+						
+			<div id="featured">
+				<br>
+
+
+				<?php 
+
+if(isset($_POST['edit'])){
+		$strQuery="UPDATE student_acct 
+		SET pasword='$_POST[password]',org_sname='$_POST[org_sname]',access_lvl='$_POST[access_lvl]'  
+		where id='$_POST[id]' ";
+
+	if($objConnection->query($strQuery)===TRUE){
+		echo "record updated successfully";
+	}else 
+		echo "error:".$objConnection->error;
+	}
+if(isset($_POST['search'])){
+
+		$strQuery = "SELECT student_no FROM student_acct WHERE student_no='$_POST[student_no]'";
+		if ($hQuery = $objConnection->query($strQuery)) {
+		
+		if ($hQuery->num_rows == 0) {
+			// redirect
+			header("location: adminpage.php?response=failed&message=Not yet registered");			
+			
+			exit();
+		} 
+	}						
+						$strQuery = "SELECT * FROM student_acct Where student_no='$_POST[student_no]'";
+
+											// execute
+							if ($hQuery = $objConnection->query($strQuery)) {
+												//get data
+								echo "<table><tr><th>Student Number - </th><th>Username - </th><th>Password - </th>
+								<th>Course - </th><th>Access Lvl</th></tr>";
+							while($row=$hQuery->fetch_assoc()){ 
+
+								echo"<tr><td>".$row["student_no"]."</td><td>".$row["username"]."</td><td>".$row["password"]."</td><td>".$row["org_sname"]."</td><td>".$row["access_lvl"]."</td></tr>";
+								echo "<table>";
+								?>
+								<br>
+
+								<?php
+								$studno=$row['student_no'];
+								$strQuery="SELECT * FROM student_info WHERE student_no='$studno'";
+								if($hQuery = $objConnection->query($strQuery)){
+
+								echo "<table><tr><th>Student Number-</th><th>First Name-</th><th>Middle Name-</th>
+								<th>Last Name-</th><th>Year lvl</th><th>Reg Date</th></tr>";
+							while($row=$hQuery->fetch_assoc()){ 
+
+								echo"<tr><td>".$row["student_no"]."</td><td>".$row["first_name"]."</td><td>".$row["middle_name"]."</td><td>".$row["last_name"]."</td><td>".$row["yr_lvl"]."</td>
+									<td>".$row["registration_date"]."</td></tr>";
+								echo "<table>";	
+		}
+	}
+}
+}
+}
+
+if(isset($_POST['delete'])){
+		$strQuery="DELETE From student_acct Where student_no='$_POST[student_no]'  ";
+	if($objConnection->query($strQuery)){
+		echo "deleted";
+	}else {
+		echo "wrong data:".$objConnection->error;
+	}
+}
+
+
+?>
+
+			</div>
+		<div id="copyright">
+			<span>&copy; Untitled. All rights reserved. </a></span>
+			<span><a href="cvsu.edu.ph">CvSU Indang</a></span>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+
+
